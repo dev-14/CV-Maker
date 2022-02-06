@@ -15,6 +15,10 @@ import (
 	"gorm.io/gorm"
 )
 
+type Paginator interface {
+	Pagination()
+}
+
 func IsPasswordStrong(password string) (bool, error) {
 	var IsLength, IsUpper, IsLower, IsNumber, IsSpecial bool
 
@@ -208,3 +212,5 @@ func IsAuthorized(username string) bool {
 	}
 	return true
 }
+
+// func SortingType(order string)

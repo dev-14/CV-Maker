@@ -11,6 +11,6 @@ type WorkExperiences struct {
 	JobRole        string    `json:"job_role"`
 	JobLocation    string    `json:"job_location"`
 	Description    string    `json:"description"`
-	BelongsToID    int
-	User           User `gorm:"foreignKey:BelongsToID" json:"-"`
+	UserID         int
+	User           User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }

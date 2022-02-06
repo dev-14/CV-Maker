@@ -90,7 +90,7 @@ func CreateProject(c *gin.Context) {
 			Language:    language,
 			Client:      true,
 			ClientName:  client_name,
-			BelongsToID: ID,
+			UserID:      ID,
 		}
 		err := models.DB.Create(&project).Error
 		if err != nil {
@@ -108,7 +108,7 @@ func CreateProject(c *gin.Context) {
 			Language:    language,
 			Client:      false,
 			ClientName:  "",
-			BelongsToID: ID,
+			UserID:      ID,
 		}
 		err := models.DB.Create(&project).Error
 		if err != nil {
@@ -133,7 +133,7 @@ func GetProject(c *gin.Context) {
 		return
 	}
 
-	if project.BelongsToID != ID {
+	if project.UserID != ID {
 		c.JSON(400, gin.H{"message": "invalid requested ID"})
 		return
 	}
@@ -152,7 +152,7 @@ func GetAllProject(c *gin.Context) {
 		c.JSON(401, gin.H{"message": "unauthorized"})
 	}
 
-	err := models.DB.Where("BelongsToID = ?", ID).Find(&project).Error
+	err := models.DB.Where("user_id = ?", ID).Find(&project).Error
 	if err != nil {
 		c.JSON(404, gin.H{"message": "no data found"})
 		return
@@ -194,7 +194,7 @@ func UpdateProject(c *gin.Context) {
 		c.JSON(404, gin.H{"message": "error fetching from database"})
 	}
 
-	if existingProject.BelongsToID != ID {
+	if existingProject.UserID != ID {
 		c.JSON(400, gin.H{"message": "invalid requested ID"})
 		return
 	}
@@ -227,10 +227,14 @@ func DeleteProject(c *gin.Context) {
 		c.JSON(400, gin.H{"message": err.Error()})
 	}
 
-	if project.BelongsToID != ID {
+	if project.UserID != ID {
 		c.JSON(400, gin.H{"message": "invalid requested ID"})
 	}
 
 	models.DB.Where("ID = ?", c.Param("id")).Delete(&project)
 
 }
+
+// func createPagination(c *gin.Context, page int) {
+// 	var
+// }

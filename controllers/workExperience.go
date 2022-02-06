@@ -112,7 +112,7 @@ func CreateWorkExperience(c *gin.Context) {
 		JobRole:        job_role,
 		JobLocation:    job_location,
 		Description:    description,
-		BelongsToID:    ID,
+		UserID:         ID,
 		User:           models.User{},
 	}
 
@@ -139,7 +139,7 @@ func GetWorkExperience(c *gin.Context) {
 		return
 	}
 
-	if work.BelongsToID != ID {
+	if work.UserID != ID {
 		c.JSON(400, gin.H{"message": "invalid requested ID"})
 		return
 	}
@@ -158,7 +158,7 @@ func GetAllWorkExperience(c *gin.Context) {
 		c.JSON(401, gin.H{"message": "unauthorized"})
 	}
 
-	err := models.DB.Where("BelongsToID = ?", ID).Find(&works).Error
+	err := models.DB.Where("user_id = ?", ID).Find(&works).Error
 	if err != nil {
 		c.JSON(404, gin.H{"message": "no data found"})
 		return
@@ -200,7 +200,7 @@ func UpdateWorkExperience(c *gin.Context) {
 		c.JSON(404, gin.H{"message": "error fetching from database"})
 	}
 
-	if existingWork.BelongsToID != ID {
+	if existingWork.UserID != ID {
 		c.JSON(400, gin.H{"message": "invalid requested ID"})
 		return
 	}
@@ -233,7 +233,7 @@ func DeleteWorkExperience(c *gin.Context) {
 		c.JSON(400, gin.H{"message": err.Error()})
 	}
 
-	if work.BelongsToID != ID {
+	if work.UserID != ID {
 		c.JSON(400, gin.H{"message": "invalid requested ID"})
 	}
 
@@ -242,7 +242,7 @@ func DeleteWorkExperience(c *gin.Context) {
 }
 
 func GetWorkExperienceByYear(c *gin.Context) {
-	var allWork []models.WorkExperiences
+	// var allWork []models.WorkExperiences
 	var work []models.WorkExperiences
 	getYear, _ := strconv.Atoi(template.HTMLEscapeString(c.PostForm("year")))
 	email, _ := models.Rdb.HGet("user", "username").Result()
@@ -264,19 +264,26 @@ func GetWorkExperienceByYear(c *gin.Context) {
 		return
 	}
 
-	err := models.DB.Where("belongs_to_id = ?", ID).Find(&allWork).Error
+	err := models.DB.Where("user_id = ? AND from <= ?", ID, getYear).Or("user_id = ? AND to >= ?", ID, getYear).Find(&work).Error
 	if err != nil {
 		c.JSON(404, gin.H{"message": "error fetching from database"})
 		return
 	}
 
-	for _, edu := range allWork {
-		start_year := edu.From.Year()
-		end_year := edu.To.Year()
-		fmt.Println(start_year, end_year, getYear)
-		if start_year == getYear || end_year == getYear || (start_year < getYear && getYear < end_year) {
-			work = append(work, edu)
-		}
-	}
+	// err := models.DB.Where("belongs_to_id = ?", ID).Find(&allWork).Error
+	// if err != nil {
+	// 	c.JSON(404, gin.H{"message": "error fetching from database"})
+	// 	return
+	// }
+
+	// for _, edu := range allWork {
+	// 	start_year := edu.From.Year()
+	// 	end_year := edu.To.Year()
+	// 	fmt.Println(start_year, end_year, getYear)
+
+	// 	if start_year == getYear || end_year == getYear || (start_year < getYear && getYear < end_year) {
+	// 		work = append(work, edu)
+	// 	}
+	// }
 	c.JSON(200, work)
 }

@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Education struct {
 	ID          int       `json:"id"`
@@ -10,6 +12,13 @@ type Education struct {
 	EndDate     time.Time `json:"end_date"`
 	Grade       string    `json:"grade"`
 	Description string    `json:"description"`
-	BelongsToID int
-	User        User `gorm:"foreignKey:BelongsToID" json:"-"`
+	UserID      int
+	User        User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
+
+// func (e []Education) Pagination(c *gin.Context, page int) {
+// 	var edu Education
+// 	// DB.Where("user_id = ?", e.UserID).Find(&edu).Limit(2).Offset((page - 1) * 5)
+
+// 	c.JSON(200, edu)
+// }

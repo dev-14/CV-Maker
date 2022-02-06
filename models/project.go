@@ -7,6 +7,6 @@ type Project struct {
 	Language    string `json:"language"`
 	Client      bool   `json:"client"`
 	ClientName  string `json:"client_name"`
-	BelongsToID int
-	User        User `gorm:"foreignKey:BelongsToID" json:"-"`
+	UserID      int
+	User        User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }

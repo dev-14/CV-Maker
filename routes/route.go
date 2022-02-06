@@ -27,29 +27,29 @@ func AuthenticatedEndpoints(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	r.Use(authMiddleware.MiddlewareFunc())
 
 	// education endpoints
-	r.POST("/education/create", controllers.CreateEducation)
+	r.POST("/education", controllers.CreateEducation)
 	r.GET("education/:id", controllers.GetEducation)
-	r.GET("education/getAll", controllers.GetAllEducation)
-	r.GET("/education/getByYear", controllers.GetEducationByYear)
+	r.GET("/education", controllers.GetAllEducation)
+	r.GET("/education?year", controllers.GetEducationByYear)
 	r.PATCH("/education/:id", controllers.UpdateEducation)
-	r.DELETE("education/delete/:id", controllers.DeleteEducation)
+	r.DELETE("/education/:id", controllers.DeleteEducation)
 
 	// workExperience endpoints
 
-	r.POST("/work/create", controllers.CreateWorkExperience)
-	r.GET("work/:id", controllers.GetWorkExperience)
-	r.GET("work/getAll", controllers.GetAllWorkExperience)
+	r.POST("/work", controllers.CreateWorkExperience)
+	r.GET("/work/:id", controllers.GetWorkExperience)
+	r.GET("/work", controllers.GetAllWorkExperience)
 	r.GET("/work/getByYear", controllers.GetWorkExperienceByYear)
-	r.PATCH("work/:id", controllers.UpdateWorkExperience)
-	r.DELETE("work/delete/:id", controllers.DeleteWorkExperience)
+	r.PATCH("/work/:id", controllers.UpdateWorkExperience)
+	r.DELETE("/work/:id", controllers.DeleteWorkExperience)
 
 	// project endpoints
 
-	r.POST("/project/create", controllers.CreateProject)
+	r.POST("/project", controllers.CreateProject)
 	r.GET("project/:id", controllers.GetProject)
-	r.GET("/project/getAll", controllers.GetAllProject)
+	r.GET("/project", controllers.GetAllProject)
 	r.PATCH("/project/:id", controllers.UpdateProject)
-	r.DELETE("/project/delete/:id", controllers.DeleteProject)
+	r.DELETE("/project/:id", controllers.DeleteProject)
 }
 
 func CORSMiddleware() gin.HandlerFunc {

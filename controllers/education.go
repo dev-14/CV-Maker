@@ -109,7 +109,7 @@ func CreateEducation(c *gin.Context) {
 		EndDate:     end_date,
 		Grade:       grade,
 		Description: description,
-		BelongsToID: ID,
+		UserID:      ID,
 		User:        models.User{},
 	}
 
@@ -135,7 +135,7 @@ func GetEducation(c *gin.Context) {
 		return
 	}
 
-	if education.BelongsToID != ID {
+	if education.UserID != ID {
 		c.JSON(400, gin.H{"message": "invalid requested ID"})
 		return
 	}
@@ -144,7 +144,7 @@ func GetEducation(c *gin.Context) {
 }
 
 func GetAllEducation(c *gin.Context) {
-	var education []models.Education
+	var e []models.Education
 
 	id, _ := models.Rdb.HGet("user", "ID").Result()
 	ID, _ := strconv.Atoi(id)
@@ -154,13 +154,16 @@ func GetAllEducation(c *gin.Context) {
 		c.JSON(401, gin.H{"message": "unauthorized"})
 	}
 
-	err := models.DB.Where("BelongsToID = ?", ID).Find(&education).Error
+	p := c.Query("page")
+	page, _ := strconv.Atoi(p)
+	order := c.Query("order")
+	err := models.DB.Where("user_id = ?", ID).Order(order).Limit(2).Offset((page - 1) * 2).Find(&e).Error
 	if err != nil {
 		c.JSON(404, gin.H{"message": "no data found"})
 		return
 	}
 
-	c.JSON(200, education)
+	c.JSON(200, e)
 }
 
 func UpdateEducation(c *gin.Context) {
@@ -196,7 +199,7 @@ func UpdateEducation(c *gin.Context) {
 		c.JSON(404, gin.H{"message": "error fetching from database"})
 	}
 
-	if existingEducation.BelongsToID != ID {
+	if existingEducation.UserID != ID {
 		c.JSON(400, gin.H{"message": "invalid requested ID"})
 		return
 	}
@@ -229,7 +232,7 @@ func DeleteEducation(c *gin.Context) {
 		c.JSON(400, gin.H{"message": err.Error()})
 	}
 
-	if education.BelongsToID != ID {
+	if education.UserID != ID {
 		c.JSON(400, gin.H{"message": "invalid requested ID"})
 	}
 
@@ -238,9 +241,10 @@ func DeleteEducation(c *gin.Context) {
 }
 
 func GetEducationByYear(c *gin.Context) {
-	var allEducation []models.Education
+	// var allEducation []models.Education
 	var education []models.Education
-	getYear, _ := strconv.Atoi(template.HTMLEscapeString(c.PostForm("year")))
+	getYear := c.Query("year")
+	// getYear, _ := strconv.Atoi(template.HTMLEscapeString(c.PostForm("year")))
 	email, _ := models.Rdb.HGet("user", "username").Result()
 	fmt.Println(email)
 	// id, _ := models.Rdb.HGet("user", "ID").Result()
@@ -260,19 +264,24 @@ func GetEducationByYear(c *gin.Context) {
 		return
 	}
 
-	err := models.DB.Where("belongs_to_id = ?", ID).Find(&allEducation).Error
+	err := models.DB.Where("user_id=? AND start_date <= ?", ID, getYear).Or("user_id=? AND end_date <= ?", ID, getYear).Find(&education).Error
 	if err != nil {
 		c.JSON(404, gin.H{"message": "error fetching from database"})
 		return
 	}
+	// err := models.DB.Where("belongs_to_id = ?", ID).Find(&allEducation).Error
+	// if err != nil {
+	// 	c.JSON(404, gin.H{"message": "error fetching from database"})
+	// 	return
+	// }
 
-	for _, edu := range allEducation {
-		start_year := edu.StartDate.Year()
-		end_year := edu.EndDate.Year()
-		fmt.Println(start_year, end_year, getYear)
-		if start_year == getYear || end_year == getYear || (start_year < getYear && getYear < end_year) {
-			education = append(education, edu)
-		}
-	}
+	// for _, edu := range allEducation {
+	// 	start_year := edu.StartDate.Year()
+	// 	end_year := edu.EndDate.Year()
+	// 	fmt.Println(start_year, end_year, getYear)
+	// 	if start_year == getYear || end_year == getYear || (start_year < getYear && getYear < end_year) {
+	// 		education = append(education, edu)
+	// 	}
+	// }
 	c.JSON(200, education)
 }
