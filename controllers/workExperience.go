@@ -158,7 +158,10 @@ func GetAllWorkExperience(c *gin.Context) {
 		c.JSON(401, gin.H{"message": "unauthorized"})
 	}
 
-	err := models.DB.Where("user_id = ?", ID).Find(&works).Error
+	p := c.Query("page")
+	page, _ := strconv.Atoi(p)
+	order := c.Query("order")
+	err := models.DB.Where("user_id = ?", ID).Order(order).Limit(2).Offset((page - 1) * 2).Find(&works).Error
 	if err != nil {
 		c.JSON(404, gin.H{"message": "no data found"})
 		return

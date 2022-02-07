@@ -212,5 +212,3 @@ func IsAuthorized(username string) bool {
 	}
 	return true
 }
-
-// func SortingType(order string)
